@@ -53,6 +53,7 @@ func (u User) ProcessSignIn() http.HandlerFunc {
 		if err != nil {
 			fmt.Printf("User session creation failed with error: %s", err)
 			http.Error(w, "User Signin failed", http.StatusInternalServerError)
+			return
 		}
 		setCookie(w, SessionCookie, session.Token)
 		fmt.Fprintf(w, "User Signin success")
@@ -78,14 +79,37 @@ func (u User) ProcessSignup() http.HandlerFunc {
 		if err != nil {
 			fmt.Printf("User creation failed with error: %s", err)
 			http.Error(w, "User Signup failed", http.StatusInternalServerError)
+			return
 		}
 
 		session, err := u.ssrv.Create(user.ID)
 		if err != nil {
 			fmt.Printf("User session creation failed with error: %s", err)
 			http.Error(w, "User Signup failed", http.StatusInternalServerError)
+			return
 		}
 		setCookie(w, SessionCookie, session.Token)
 		fmt.Fprintf(w, "User created: %+v", *user)
+	}
+}
+
+func (u User) ProcessSignout() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		token, err := readCookie(r, SessionCookie)
+		if err != nil {
+			fmt.Printf("User session token missing: %s", err)
+			http.Error(w, "User Signout failed", http.StatusInternalServerError)
+			return
+		}
+		//fmt.Fprintf(w, "user type email %s pwd %s", email, password)
+		err = u.ssrv.Delete(token)
+		if err != nil {
+			fmt.Printf("User session deletion failed: %s", err)
+			http.Error(w, "User Signout failed", http.StatusInternalServerError)
+			return
+		}
+
+		deleteCookie(w, SessionCookie)
+		fmt.Fprintf(w, "User signout done")
 	}
 }
