@@ -43,6 +43,7 @@ func main() {
 	r.Post("/signin", u.ProcessSignIn())
 	r.Get("/signup", u.Signup())
 	r.Post("/signup", u.ProcessSignup())
+	r.Post("/signout", u.ProcessSignout())
 
 	// TODO: auth key should be a config value and secure need to be removed on prod
 	CSRF := csrf.Protect([]byte("gFvi45R4fy5xNBlnEeZtQbfAVCYEIAUX"), csrf.Secure(false))
