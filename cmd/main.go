@@ -22,7 +22,8 @@ func main() {
 		return
 	}
 
-	userSrv := model.New(db)
+	userSrv := model.NewUserSrv(db)
+	sessionSrv := model.NewSessionSrv(db)
 
 	r := chi.NewRouter()
 
@@ -37,7 +38,7 @@ func main() {
 		"signin.gohtml", "tailwind.gohtml"))
 	signupTmp := views.Must(views.ParseFS(templates.FS,
 		"signup.gohtml", "tailwind.gohtml"))
-	u := controllers.New(signinTmp, signupTmp, userSrv)
+	u := controllers.New(signinTmp, signupTmp, userSrv, sessionSrv)
 	r.Get("/signin", u.Signin())
 	r.Post("/signin", u.ProcessSignIn())
 	r.Get("/signup", u.Signup())

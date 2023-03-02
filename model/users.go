@@ -8,7 +8,7 @@ import (
 )
 
 type User struct {
-	Id            int
+	ID            int
 	Email         string
 	Password_Hash string
 }
@@ -17,7 +17,7 @@ type UserService struct {
 	db *sql.DB
 }
 
-func New(db *sql.DB) *UserService {
+func NewUserSrv(db *sql.DB) *UserService {
 	return &UserService{
 		db: db,
 	}
@@ -35,26 +35,28 @@ func (u UserService) Create(email string, pwd string) (*User, error) {
 		Email:         emailId,
 		Password_Hash: string(pHash),
 	}
-	err = result.Scan(&user.Id)
+	err = result.Scan(&user.ID)
 	if err != nil {
 		return nil, err
 	}
 	return &user, nil
 }
 
-func (u UserService) Authenticate(email string, pwd string) (bool, error) {
+func (u UserService) Authenticate(email string, pwd string) (*User, error) {
 	emailId := strings.ToLower(email)
 
-	result := u.db.QueryRow(`select password_hash from users where email=$1`, emailId)
-	var pHash string
-	err := result.Scan(&pHash)
+	result := u.db.QueryRow(`select id, password_hash from users where email=$1`, emailId)
+	user := User{
+		Email: emailId,
+	}
+	err := result.Scan(&user.ID, &user.Password_Hash)
 	if err != nil {
-		return false, err
+		return nil, err
 	}
 
-	err = bcrypt.CompareHashAndPassword([]byte(pHash), []byte(pwd))
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password_Hash), []byte(pwd))
 	if err != nil {
-		return false, err
+		return nil, err
 	}
-	return true, nil
+	return &user, nil
 }
