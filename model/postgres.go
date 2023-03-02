@@ -23,8 +23,8 @@ func DefaultPostgresConfig() PostgresConfig {
 	return PostgresConfig{
 		Host:     "localhost",
 		Port:     "5432",
-		User:     "awsdemo",
-		Password: "awsdemopwd",
+		User:     "baloo",
+		Password: "junglebook",
 		Database: "lenslocked",
 		SSLMode:  "disable",
 	}

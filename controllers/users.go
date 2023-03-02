@@ -21,17 +21,6 @@ func New(in Template, up Template, usrv *model.UserService) *User {
 	}
 }
 
-func (u User) Signup() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		var data struct {
-			Email string
-		}
-		data.Email = r.FormValue("email")
-		fmt.Println(data.Email)
-		u.signupTmpl.Execute(w, data)
-	}
-}
-
 func (u User) Signin() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var data struct {
@@ -39,7 +28,7 @@ func (u User) Signin() http.HandlerFunc {
 		}
 		data.Email = r.FormValue("email")
 		fmt.Println(data.Email)
-		u.signinTmpl.Execute(w, data)
+		u.signinTmpl.Execute(w, r, data)
 	}
 }
 
@@ -52,8 +41,19 @@ func (u User) ProcessSignIn() http.HandlerFunc {
 		if err != nil || !status {
 			fmt.Printf("User sigup failed with error: %s", err)
 			http.Error(w, "User Signup failed", http.StatusInternalServerError)
+			return
 		}
 		fmt.Fprintf(w, "User Authenticated")
+	}
+}
+
+func (u User) Signup() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var data struct {
+			Email string
+		}
+		data.Email = r.FormValue("email")
+		u.signupTmpl.Execute(w, r, data)
 	}
 }
 
@@ -67,6 +67,6 @@ func (u User) ProcessSignup() http.HandlerFunc {
 			fmt.Printf("User creation failed with error: %s", err)
 			http.Error(w, "User Signup failed", http.StatusInternalServerError)
 		}
-		fmt.Fprintf(w, "User created: %+v", user)
+		fmt.Fprintf(w, "User created: %+v", *user)
 	}
 }

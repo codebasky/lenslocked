@@ -9,6 +9,7 @@ import (
 	"github.com/codebasky/lenslocked/templates"
 	"github.com/codebasky/lenslocked/views"
 	"github.com/go-chi/chi/v5"
+	"github.com/gorilla/csrf"
 )
 
 func main() {
@@ -41,5 +42,8 @@ func main() {
 	r.Post("/signin", u.ProcessSignIn())
 	r.Get("/signup", u.Signup())
 	r.Post("/signup", u.ProcessSignup())
-	http.ListenAndServe(":3000", r)
+
+	// TODO: auth key should be a config value and secure need to be removed on prod
+	CSRF := csrf.Protect([]byte("gFvi45R4fy5xNBlnEeZtQbfAVCYEIAUX"), csrf.Secure(false))
+	http.ListenAndServe(":3000", CSRF(r))
 }

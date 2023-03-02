@@ -25,7 +25,7 @@ func New(db *sql.DB) *UserService {
 
 func (u UserService) Create(email string, pwd string) (*User, error) {
 	emailId := strings.ToLower(email)
-	pHash, err := bcrypt.GenerateFromPassword([]byte(emailId), bcrypt.DefaultCost)
+	pHash, err := bcrypt.GenerateFromPassword([]byte(pwd), bcrypt.DefaultCost)
 	if err != nil {
 		return nil, err
 	}
