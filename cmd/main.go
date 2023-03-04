@@ -22,6 +22,8 @@ func main() {
 		return
 	}
 
+	model.Migrate(db)
+
 	userSrv := model.NewUserSrv(db)
 	sessionSrv := model.NewSessionSrv(db)
 
