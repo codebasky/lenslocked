@@ -4,7 +4,9 @@ import (
 	"database/sql"
 	"fmt"
 
+	"github.com/codebasky/lenslocked/migrations"
 	_ "github.com/jackc/pgx/v4/stdlib"
+	"github.com/pressly/goose/v3"
 )
 
 // Open will open a SQL connection with the provided
@@ -41,4 +43,16 @@ type PostgresConfig struct {
 
 func (cfg PostgresConfig) String() string {
 	return fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s", cfg.Host, cfg.Port, cfg.User, cfg.Password, cfg.Database, cfg.SSLMode)
+}
+
+func Migrate(db *sql.DB) {
+	goose.SetBaseFS(migrations.MigrateFS)
+
+	if err := goose.SetDialect("postgres"); err != nil {
+		panic(err)
+	}
+
+	if err := goose.Up(db, "."); err != nil {
+		panic(err)
+	}
 }
