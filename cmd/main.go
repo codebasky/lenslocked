@@ -41,11 +41,12 @@ func main() {
 	signupTmp := views.Must(views.ParseFS(templates.FS,
 		"signup.gohtml", "tailwind.gohtml"))
 	u := controllers.New(signinTmp, signupTmp, userSrv, sessionSrv)
-	r.Get("/signin", u.Signin())
-	r.Post("/signin", u.ProcessSignIn())
-	r.Get("/signup", u.Signup())
-	r.Post("/signup", u.ProcessSignup())
-	r.Post("/signout", u.ProcessSignout())
+	r.Get("/signin", u.Signin)
+	r.Post("/signin", u.ProcessSignIn)
+	r.Get("/signup", u.Signup)
+	r.Post("/signup", u.ProcessSignup)
+	r.Post("/signout", u.ProcessSignout)
+	r.Get("/users/me", u.CurrentUser)
 
 	// TODO: auth key should be a config value and secure need to be removed on prod
 	CSRF := csrf.Protect([]byte("gFvi45R4fy5xNBlnEeZtQbfAVCYEIAUX"), csrf.Secure(false))
