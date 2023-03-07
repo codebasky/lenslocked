@@ -3,6 +3,7 @@ package controllers
 import (
 	"fmt"
 	"net/http"
+	"net/url"
 
 	"github.com/codebasky/lenslocked/model"
 )
@@ -16,14 +17,20 @@ type User struct {
 	signupTmpl Template
 	usrv       *model.UserService
 	ssrv       *model.SessionService
+	esrv       *model.EmailService
+	psrv       *model.PasswordResetService
 }
 
-func New(in Template, up Template, usrv *model.UserService, ssrv *model.SessionService) *User {
+func New(in Template, up Template,
+	usrv *model.UserService, ssrv *model.SessionService,
+	esrv *model.EmailService, psrv *model.PasswordResetService) *User {
 	return &User{
 		signinTmpl: in,
 		signupTmpl: up,
 		usrv:       usrv,
 		ssrv:       ssrv,
+		esrv:       esrv,
+		psrv:       psrv,
 	}
 }
 
@@ -118,4 +125,32 @@ func (u User) CurrentUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	fmt.Fprintf(w, "Current user: %s\n", user.Email)
+}
+
+func (u User) ProcessForgotPwd(w http.ResponseWriter, r *http.Request) {
+	email := r.FormValue("email")
+	user, err := u.usrv.User(email)
+	if err != nil {
+		fmt.Printf("User find failed with error: %s", err)
+		http.Error(w, "reset password failed wrong emailid", http.StatusBadRequest)
+		return
+	}
+
+	pwReset, err := u.psrv.Create(user.Email, user.ID)
+	if err != nil {
+		fmt.Printf("Process forgot pwd failed: %s", err)
+		http.Error(w, "pwd create failed", http.StatusInternalServerError)
+		return
+	}
+	vals := url.Values{
+		"token": {pwReset.Token},
+	}
+	resetURL := "https://www.lenslocked.com/reset-pw?" + vals.Encode()
+
+	err = u.esrv.ForgotPassword(user.Email, resetURL)
+	if err != nil {
+		fmt.Printf("Process forgot pwd failed: %s", err)
+		http.Error(w, "reset password failed", http.StatusInternalServerError)
+		return
+	}
 }

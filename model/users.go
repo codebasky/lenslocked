@@ -60,3 +60,17 @@ func (u UserService) Authenticate(email string, pwd string) (*User, error) {
 	}
 	return &user, nil
 }
+
+func (u UserService) User(email string) (*User, error) {
+	emailId := strings.ToLower(email)
+	user := User{
+		Email: emailId,
+	}
+	result := u.db.QueryRow(`select id, password_hash from users where email=$1`, emailId)
+
+	err := result.Scan(&user.ID, &user.Password_Hash)
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
+}

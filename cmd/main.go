@@ -26,6 +26,7 @@ func main() {
 
 	userSrv := model.NewUserSrv(db)
 	sessionSrv := model.NewSessionSrv(db)
+	emailSrv := model.NewEmailService(model.SMTPConfig{})
 
 	r := chi.NewRouter()
 
@@ -40,7 +41,7 @@ func main() {
 		"signin.gohtml", "tailwind.gohtml"))
 	signupTmp := views.Must(views.ParseFS(templates.FS,
 		"signup.gohtml", "tailwind.gohtml"))
-	u := controllers.New(signinTmp, signupTmp, userSrv, sessionSrv)
+	u := controllers.New(signinTmp, signupTmp, userSrv, sessionSrv, emailSrv, &model.PasswordResetService{})
 	r.Get("/signin", u.Signin)
 	r.Post("/signin", u.ProcessSignIn)
 	r.Get("/signup", u.Signup)
