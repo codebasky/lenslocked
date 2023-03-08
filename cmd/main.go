@@ -26,7 +26,8 @@ func main() {
 
 	userSrv := model.NewUserSrv(db)
 	sessionSrv := model.NewSessionSrv(db)
-	emailSrv := model.NewEmailService(model.SMTPConfig{})
+	mcfg := model.DefaultEmailConfig()
+	emailSrv := model.NewEmailService(mcfg)
 
 	r := chi.NewRouter()
 
@@ -41,13 +42,21 @@ func main() {
 		"signin.gohtml", "tailwind.gohtml"))
 	signupTmp := views.Must(views.ParseFS(templates.FS,
 		"signup.gohtml", "tailwind.gohtml"))
-	u := controllers.New(signinTmp, signupTmp, userSrv, sessionSrv, emailSrv, &model.PasswordResetService{})
+	forgotPassword := views.Must(views.ParseFS(templates.FS,
+		"forgot_password.gohtml", "tailwind.gohtml",
+	))
+	cye := views.Must(views.ParseFS(templates.FS,
+		"check_your_email.gohtml", "tailwind.gohtml",
+	))
+	u := controllers.New(signinTmp, signupTmp, forgotPassword, cye, userSrv, sessionSrv, emailSrv, &model.PasswordResetService{})
 	r.Get("/signin", u.Signin)
 	r.Post("/signin", u.ProcessSignIn)
 	r.Get("/signup", u.Signup)
 	r.Post("/signup", u.ProcessSignup)
 	r.Post("/signout", u.ProcessSignout)
 	r.Get("/users/me", u.CurrentUser)
+	r.Get("/forgot-pw", u.ForgotPassword)
+	r.Post("/forgot-pw", u.ProcessForgotPassword)
 
 	// TODO: auth key should be a config value and secure need to be removed on prod
 	CSRF := csrf.Protect([]byte("gFvi45R4fy5xNBlnEeZtQbfAVCYEIAUX"), csrf.Secure(false))

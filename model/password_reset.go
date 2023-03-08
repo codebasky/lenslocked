@@ -32,7 +32,7 @@ type PasswordResetService struct {
 }
 
 func (service *PasswordResetService) Create(email string, uid int) (*PasswordReset, error) {
-	return nil, fmt.Errorf("TODO: Implement PasswordResetService.Create")
+	return &PasswordReset{Token: "yestotest"}, nil
 }
 
 func (service *PasswordResetService) Consume(token string) (*User, error) {
