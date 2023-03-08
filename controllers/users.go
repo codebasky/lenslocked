@@ -13,24 +13,28 @@ const (
 )
 
 type User struct {
-	signinTmpl Template
-	signupTmpl Template
-	usrv       *model.UserService
-	ssrv       *model.SessionService
-	esrv       *model.EmailService
-	psrv       *model.PasswordResetService
+	signinTmpl     Template
+	signupTmpl     Template
+	forgotPassword Template
+	checkYourEmail Template
+	usrv           *model.UserService
+	ssrv           *model.SessionService
+	esrv           *model.EmailService
+	psrv           *model.PasswordResetService
 }
 
-func New(in Template, up Template,
+func New(in Template, up Template, fpwd Template, cye Template,
 	usrv *model.UserService, ssrv *model.SessionService,
 	esrv *model.EmailService, psrv *model.PasswordResetService) *User {
 	return &User{
-		signinTmpl: in,
-		signupTmpl: up,
-		usrv:       usrv,
-		ssrv:       ssrv,
-		esrv:       esrv,
-		psrv:       psrv,
+		signinTmpl:     in,
+		signupTmpl:     up,
+		forgotPassword: fpwd,
+		checkYourEmail: cye,
+		usrv:           usrv,
+		ssrv:           ssrv,
+		esrv:           esrv,
+		psrv:           psrv,
 	}
 }
 
@@ -127,8 +131,20 @@ func (u User) CurrentUser(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Current user: %s\n", user.Email)
 }
 
-func (u User) ProcessForgotPwd(w http.ResponseWriter, r *http.Request) {
+func (u User) ForgotPassword(w http.ResponseWriter, r *http.Request) {
+	var data struct {
+		Email string
+	}
+	data.Email = r.FormValue("email")
+	u.forgotPassword.Execute(w, r, data)
+}
+
+func (u User) ProcessForgotPassword(w http.ResponseWriter, r *http.Request) {
+	var data struct {
+		Email string
+	}
 	email := r.FormValue("email")
+	data.Email = email
 	user, err := u.usrv.User(email)
 	if err != nil {
 		fmt.Printf("User find failed with error: %s", err)
@@ -153,4 +169,5 @@ func (u User) ProcessForgotPwd(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "reset password failed", http.StatusInternalServerError)
 		return
 	}
+	u.checkYourEmail.Execute(w, r, data)
 }

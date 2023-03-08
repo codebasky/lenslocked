@@ -28,6 +28,15 @@ type EmailService struct {
 	dialer *gomail.Dialer
 }
 
+func DefaultEmailConfig() SMTPConfig {
+	return SMTPConfig{
+		Host:     "sandbox.smtp.mailtrap.io",
+		Port:     2525,
+		User:     "default",
+		Password: "default",
+	}
+}
+
 func NewEmailService(cfg SMTPConfig) *EmailService {
 	return &EmailService{
 		dialer: gomail.NewDialer(cfg.Host, cfg.Port, cfg.User, cfg.Password),
