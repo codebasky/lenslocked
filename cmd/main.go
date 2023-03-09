@@ -42,13 +42,17 @@ func main() {
 		"signin.gohtml", "tailwind.gohtml"))
 	signupTmp := views.Must(views.ParseFS(templates.FS,
 		"signup.gohtml", "tailwind.gohtml"))
-	forgotPassword := views.Must(views.ParseFS(templates.FS,
+	forgotPwd := views.Must(views.ParseFS(templates.FS,
 		"forgot_password.gohtml", "tailwind.gohtml",
+	))
+	resetPwd := views.Must(views.ParseFS(templates.FS,
+		"reset_password.gohtml", "tailwind.gohtml",
 	))
 	cye := views.Must(views.ParseFS(templates.FS,
 		"check_your_email.gohtml", "tailwind.gohtml",
 	))
-	u := controllers.New(signinTmp, signupTmp, forgotPassword, cye, userSrv, sessionSrv, emailSrv, &model.PasswordResetService{})
+	u := controllers.New(signinTmp, signupTmp, forgotPwd, cye, resetPwd,
+		userSrv, sessionSrv, emailSrv, &model.PasswordResetService{})
 	r.Get("/signin", u.Signin)
 	r.Post("/signin", u.ProcessSignIn)
 	r.Get("/signup", u.Signup)
@@ -57,6 +61,8 @@ func main() {
 	r.Get("/users/me", u.CurrentUser)
 	r.Get("/forgot-pw", u.ForgotPassword)
 	r.Post("/forgot-pw", u.ProcessForgotPassword)
+	r.Get("/reset-pw", u.ResetPassword)
+	r.Post("/reset-pw", u.ProcessResetPassword)
 
 	// TODO: auth key should be a config value and secure need to be removed on prod
 	CSRF := csrf.Protect([]byte("gFvi45R4fy5xNBlnEeZtQbfAVCYEIAUX"), csrf.Secure(false))

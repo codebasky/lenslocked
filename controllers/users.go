@@ -17,13 +17,14 @@ type User struct {
 	signupTmpl     Template
 	forgotPassword Template
 	checkYourEmail Template
+	resetPassword  Template
 	usrv           *model.UserService
 	ssrv           *model.SessionService
 	esrv           *model.EmailService
 	psrv           *model.PasswordResetService
 }
 
-func New(in Template, up Template, fpwd Template, cye Template,
+func New(in Template, up Template, fpwd Template, cye Template, rpwd Template,
 	usrv *model.UserService, ssrv *model.SessionService,
 	esrv *model.EmailService, psrv *model.PasswordResetService) *User {
 	return &User{
@@ -31,6 +32,7 @@ func New(in Template, up Template, fpwd Template, cye Template,
 		signupTmpl:     up,
 		forgotPassword: fpwd,
 		checkYourEmail: cye,
+		resetPassword:  rpwd,
 		usrv:           usrv,
 		ssrv:           ssrv,
 		esrv:           esrv,
@@ -170,4 +172,38 @@ func (u User) ProcessForgotPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	u.checkYourEmail.Execute(w, r, data)
+}
+
+func (u User) ResetPassword(w http.ResponseWriter, r *http.Request) {
+	var data struct {
+		Token string
+	}
+	data.Token = r.FormValue("token")
+	u.resetPassword.Execute(w, r, data)
+}
+
+func (u User) ProcessResetPassword(w http.ResponseWriter, r *http.Request) {
+	var data struct {
+		Token    string
+		Password string
+	}
+	data.Token = r.FormValue("token")
+	data.Password = r.FormValue("password")
+	fmt.Println(data)
+
+	/* user, err := u.usrv.UpdatePassword(email, password)
+	if err != nil {
+		fmt.Printf("User creation failed with error: %s", err)
+		http.Error(w, "User Signup failed", http.StatusInternalServerError)
+		return
+	}
+
+	session, err := u.ssrv.Create(user.ID)
+	if err != nil {
+		fmt.Printf("User session creation failed with error: %s", err)
+		http.Error(w, "User Signup failed", http.StatusInternalServerError)
+		return
+	}
+	setCookie(w, SessionCookie, session.Token)
+	http.Redirect(w, r, "/users/me", http.StatusFound) */
 }

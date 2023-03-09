@@ -74,3 +74,15 @@ func (u UserService) User(email string) (*User, error) {
 	}
 	return &user, nil
 }
+
+func (u UserService) UpdatePassword(uid int, pwd string) error {
+	pHash, err := bcrypt.GenerateFromPassword([]byte(pwd), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+	_, err = u.db.Exec(`update users set password_hash=$1 where id=$2`, string(pHash), uid)
+	if err != nil {
+		return err
+	}
+	return nil
+}
