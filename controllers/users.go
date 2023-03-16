@@ -191,10 +191,24 @@ func (u User) ProcessResetPassword(w http.ResponseWriter, r *http.Request) {
 	data.Password = r.FormValue("password")
 	fmt.Println(data)
 
-	/* user, err := u.usrv.UpdatePassword(email, password)
+	user, err := u.psrv.Consume(data.Token)
+	if err != nil {
+		fmt.Printf("Process forgot pwd failed: %s", err)
+		http.Error(w, "pwd create failed", http.StatusInternalServerError)
+		return
+	}
+
+	err = u.usrv.UpdatePassword(user.ID, data.Password)
 	if err != nil {
 		fmt.Printf("User creation failed with error: %s", err)
 		http.Error(w, "User Signup failed", http.StatusInternalServerError)
+		return
+	}
+
+	err = u.psrv.Delete(data.Token)
+	if err != nil {
+		fmt.Printf("password reset token deletion failed: %s", err)
+		http.Error(w, "pwd create failed", http.StatusInternalServerError)
 		return
 	}
 
@@ -205,5 +219,5 @@ func (u User) ProcessResetPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	setCookie(w, SessionCookie, session.Token)
-	http.Redirect(w, r, "/users/me", http.StatusFound) */
+	http.Redirect(w, r, "/users/me", http.StatusFound)
 }

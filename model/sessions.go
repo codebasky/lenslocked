@@ -1,16 +1,14 @@
 package model
 
 import (
-	"crypto/sha256"
 	"database/sql"
-	"encoding/base64"
 	"fmt"
 
 	"github.com/codebasky/lenslocked/rand"
 )
 
 const (
-	RandomLength = 32
+	SessonTokenLength = 32
 )
 
 type Session struct {
@@ -31,11 +29,11 @@ func NewSessionSrv(db *sql.DB) *SessionService {
 }
 
 func (ss *SessionService) Create(uid int) (*Session, error) {
-	token, err := rand.String(RandomLength)
+	token, err := rand.String(SessonTokenLength)
 	if err != nil {
 		return nil, err
 	}
-	tokenHash := hash(token)
+	tokenHash := rand.Hash(token)
 
 	s := Session{
 		UserID:    uid,
@@ -56,7 +54,7 @@ func (ss *SessionService) Create(uid int) (*Session, error) {
 }
 
 func (ss *SessionService) User(token string) (*User, error) {
-	tokenHash := hash(token)
+	tokenHash := rand.Hash(token)
 	var user User
 
 	row := ss.db.QueryRow(`
@@ -72,7 +70,7 @@ func (ss *SessionService) User(token string) (*User, error) {
 }
 
 func (ss *SessionService) Delete(token string) error {
-	tokenHash := hash(token)
+	tokenHash := rand.Hash(token)
 	_, err := ss.db.Exec(`
 		DELETE FROM sessions
 		WHERE token_hash = $1;`, tokenHash)
@@ -81,10 +79,4 @@ func (ss *SessionService) Delete(token string) error {
 	}
 
 	return nil
-}
-
-func hash(token string) string {
-	tokenHash := sha256.Sum256([]byte(token))
-	// base64 encode the data into a string
-	return base64.URLEncoding.EncodeToString(tokenHash[:])
 }
