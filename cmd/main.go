@@ -28,6 +28,7 @@ func main() {
 	sessionSrv := model.NewSessionSrv(db)
 	mcfg := model.DefaultEmailConfig()
 	emailSrv := model.NewEmailService(mcfg)
+	pwdSrv := model.NewPwdResetService(db)
 
 	r := chi.NewRouter()
 
@@ -52,7 +53,7 @@ func main() {
 		"check_your_email.gohtml", "tailwind.gohtml",
 	))
 	u := controllers.New(signinTmp, signupTmp, forgotPwd, cye, resetPwd,
-		userSrv, sessionSrv, emailSrv, &model.PasswordResetService{})
+		userSrv, sessionSrv, emailSrv, pwdSrv)
 	r.Get("/signin", u.Signin)
 	r.Post("/signin", u.ProcessSignIn)
 	r.Get("/signup", u.Signup)
