@@ -18,7 +18,7 @@ func main() {
 	err := es.Send(
 		model.Email{
 			From:      "support@lenslocked.com",
-			To:        "hibasky@gmail.com",
+			To:        "test@gmail.com",
 			Subject:   "Test",
 			PlainText: "Test mail for email feature",
 		},
