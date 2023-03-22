@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lenslocked-deployment
+  labels:
+    tier: webserver
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: lenslocked
+      tier: webserver
+  template:
+    metadata:
+      name: lenslocked-pod
+      labels:
+        app: lenslocked
+        tier: webserver
+    spec:
+      containers:
+      - name: lenslocked-container
+        image: codebasky/lenslocked:latest
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 3000
+

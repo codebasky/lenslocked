@@ -6,9 +6,9 @@ services:
     ports:
       - 3000:3000
     depends_on: 
-      - db
+      - lenslocked-db-service
   # Our Postgres database
-  db: # The service will be named db.
+  lenslocked-db-service: # The service will be named db.
     image: postgres # The postgres image will be used
     restart: always # Always try to restart if this stops running
     environment: # Provide environment variables
@@ -27,4 +27,4 @@ services:
     ports:
       - 3333:8080
     depends_on:
-      - db
+      - lenslocked-db-service
