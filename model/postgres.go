@@ -23,7 +23,7 @@ func Open(config PostgresConfig) (*sql.DB, error) {
 
 func DefaultPostgresConfig() PostgresConfig {
 	return PostgresConfig{
-		Host:     "db",
+		Host:     "lenslocked-db-service",
 		Port:     "5432",
 		User:     "baloo",
 		Password: "junglebook",
