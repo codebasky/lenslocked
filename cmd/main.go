@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/codebasky/lenslocked/config"
 	"github.com/codebasky/lenslocked/controllers"
 	"github.com/codebasky/lenslocked/model"
 	"github.com/codebasky/lenslocked/templates"
@@ -13,10 +14,12 @@ import (
 )
 
 func main() {
-	fmt.Println("Starting web development")
+	fmt.Println("Starting web development!!")
 
-	cfg := model.DefaultPostgresConfig()
-	db, err := model.Open(cfg)
+	//TODO: Need to keep db and other passwords in vault/other secret service
+	cfg := config.LoadConfig()
+	fmt.Printf("Using the configuration: %+v\n", cfg)
+	db, err := model.Open(cfg.DBCfg)
 	if err != nil {
 		fmt.Printf("Error on db connection: %s", err)
 		return
@@ -26,8 +29,7 @@ func main() {
 
 	userSrv := model.NewUserSrv(db)
 	sessionSrv := model.NewSessionSrv(db)
-	mcfg := model.DefaultEmailConfig()
-	emailSrv := model.NewEmailService(mcfg)
+	emailSrv := model.NewEmailService(cfg.SMTPCfg)
 	pwdSrv := model.NewPwdResetService(db)
 
 	r := chi.NewRouter()
@@ -66,6 +68,6 @@ func main() {
 	r.Post("/reset-pw", u.ProcessResetPassword)
 
 	// TODO: auth key should be a config value and secure need to be removed on prod
-	CSRF := csrf.Protect([]byte("gFvi45R4fy5xNBlnEeZtQbfAVCYEIAUX"), csrf.Secure(false))
-	http.ListenAndServe(":3000", CSRF(r))
+	CSRF := csrf.Protect([]byte(cfg.ServerCfg.AuthKey), csrf.Secure(false))
+	http.ListenAndServe(cfg.ServerCfg.Address, CSRF(r))
 }
