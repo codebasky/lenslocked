@@ -46,7 +46,7 @@ func LoadConfig() Config {
 	smtpCfg := model.DefaultEmailConfig()
 	cfg.SMTPCfg.Host = getEnvOrDefault("SMTP_HOST", smtpCfg.Host)
 	sport := strconv.Itoa(smtpCfg.Port)
-	port, _ := strconv.Atoi(getEnvOrDefault("SMTP_HOST", sport))
+	port, _ := strconv.Atoi(getEnvOrDefault("SMTP_PORT", sport))
 	cfg.SMTPCfg.Port = port
 	cfg.SMTPCfg.User = getEnvOrDefault("SMTP_USER", smtpCfg.User)
 	cfg.SMTPCfg.Password = getEnvOrDefault("SMTP_PASSWORD", smtpCfg.Password)

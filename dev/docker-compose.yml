@@ -3,6 +3,18 @@ version: "3.9"
 services:
   web:
     build: ../
+    environment:
+      DB_HOST: lenslocked-db-service
+      DB_PORT: 5432
+      DB_USER: codebasky
+      DB_PASSWORD: mypassword
+      DB_DATABASE: lenslocked
+      SMTP_HOST: sandbox.smtp.mailtrap.io
+      SMTP_PORT: 2525
+      SMTP_USER: default
+      SMTP_PASSWORD: default
+      WEBSERVER_PORT: :3000
+      WEBSERVER_AUTH_KEY: randomauthkey
     ports:
       - 3000:3000
     depends_on: 
@@ -12,8 +24,8 @@ services:
     image: postgres # The postgres image will be used
     restart: always # Always try to restart if this stops running
     environment: # Provide environment variables
-      POSTGRES_USER: baloo # POSTGRES_USER env var w/ value baloo
-      POSTGRES_PASSWORD: junglebook
+      POSTGRES_USER: codebasky # POSTGRES_USER env var w/ value baloo
+      POSTGRES_PASSWORD: mypassword
       POSTGRES_DB: lenslocked # Database name
     ports: # Expose ports so that apps not running via docker-compose can connect to them.
       - 5432:5432 # format here is "port on our machine":"port on container"
